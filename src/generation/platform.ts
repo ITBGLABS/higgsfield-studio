@@ -73,6 +73,11 @@ export function createPlatformClient(options: PlatformClientOptions) {
       if (!isModelId(model)) throw new PlatformError(400, { detail: "Invalid model" });
       return mapQueued(await send("POST", `/${model}`, input));
     },
+    /** Price for this exact body, before submit. Raw payload: two shapes exist. */
+    async estimate(model: string, input: Record<string, unknown>): Promise<unknown> {
+      if (!isModelId(model)) throw new PlatformError(400, { detail: "Invalid model" });
+      return send("POST", `/estimate/`, input);
+    },
     async status(requestId: string): Promise<GenerationStatus> {
       if (!requestId) throw new PlatformError(400, { detail: "Missing request id" });
       return mapStatus(await send("GET", `/requests/${encodeURIComponent(requestId)}/status`));

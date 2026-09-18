@@ -12,6 +12,7 @@ import {
   encodeCredentials,
   parseCredentialInput,
 } from "./credentials";
+import { parseEstimate, recordLedger, recordTerminal } from "./ledger";
 import { createPlatformClient } from "./platform";
 import type { StatusResult } from "./platform";
 import { toPlatform } from "./to-platform";
@@ -38,7 +39,24 @@ export async function submitGeneration(plane: GenerationPlane) {
     settings: parseSettings(model, plane.settings),
   };
   const { path, body } = toPlatform(parsed);
-  return createPlatformClient(await readCredentials()).submit(path, body);
+  const client = createPlatformClient(await readCredentials());
+  // Estimate and submit fire together so pricing adds no latency to the run.
+  const [estimate, queued] = await Promise.all([
+    client.estimate(path, body).then((raw) => parseEstimate(raw, parsed.settings)).catch(() => null),
+    client.submit(path, body),
+  ]);
+  await recordLedger({
+    type: "submit",
+    ts: new Date().toISOString(),
+    requestId: queued.requestId,
+    model: model.id,
+    path,
+    surface: model.surface,
+    prompt: parsed.prompt.text,
+    settings: parsed.settings,
+    estimate,
+  });
+  return queued;
 }
 
 /** Every request in flight, answered in one round trip. Next dispatches server
@@ -51,7 +69,9 @@ export async function getGenerationStatuses(data: unknown): Promise<StatusResult
   return Promise.all(
     requestIds.map(async (requestId): Promise<StatusResult> => {
       try {
-        return { requestId, status: await client.status(requestId) };
+        const status = await client.status(requestId);
+        await recordTerminal(requestId, status.status);
+        return { requestId, status };
       } catch (caught) {
         return { requestId, error: caught instanceof Error ? caught.message : String(caught) };
       }
