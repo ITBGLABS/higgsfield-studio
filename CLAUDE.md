@@ -29,10 +29,15 @@ pnpm dev            # http://localhost:3000
 
 One file in `src/generation/catalog/`, exported from `catalog/index.ts`. If the platform body is `prompt`, `aspect_ratio`, `resolution`, `duration`, `image_url(s)`, use `imageModel`/`videoModel` from `defaults.ts` with `paths`. Anything else gets a custom mapper in `to-platform.ts` (see `mapMarketingStudio`). Add the id prefix to `model-icon.tsx` if it should carry a brand icon. Verify with `pnpm exec tsc --noEmit && pnpm build`.
 
+## Docs
+
+- Operator runbook for Blake: `docs/OPERATING.md` (start, money, client tagging, ledger, prompting). Keep its Last verified banner current when prices or models change.
+- `README.md` is ours; upstream README was replaced.
+
 ## Our changes on top of upstream
 
 - `marketing-studio-image`: Platform Marketing Studio Image (campaign stills, up to 16 reference images, `quality` setting). Enhanced preset mode not wired yet.
-- Cost ledger: every submit calls `POST /estimate/{model}` with the same body and appends a `submit` event to `data/ledger.jsonl` (gitignored); every terminal poll appends a `terminal` event. `pnpm ledger` prints per-model charged USD/AUD (completed runs only, net of account discount), `--runs`, `--csv`, `--since`, `--markup N` for client pricing. Seedance is token-metered and priced here from the platform formula at 480p/720p only; other cases show as unpriced. Rate in `LEDGER_AUD_PER_USD`.
+- Cost ledger: every submit calls `POST /estimate/{model}` with the same body and appends a `submit` event to `data/ledger.jsonl` (gitignored); every terminal poll appends a `terminal` event. `pnpm ledger` prints per-model charged USD/AUD (completed runs only, net of account discount), `--runs`, `--csv`, `--since`, `--markup N` for client pricing. Seedance is token-metered and priced here from the platform formula at 480p/720p only; other cases show as unpriced. Rate in `LEDGER_AUD_PER_USD`. Client tag: `LEDGER_CLIENT` in `.env.local`, recorded on every submit event; the dev server hot-reloads the env file so switching client is edit and save.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

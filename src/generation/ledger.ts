@@ -30,6 +30,8 @@ export type LedgerEvent =
       model: string;
       path: string;
       surface: "image" | "video";
+      /** Who this run is for (LEDGER_CLIENT in .env.local), so the report can bill per client. */
+      client: string | null;
       prompt: string;
       settings: Record<string, unknown>;
       estimate: Estimate | null;

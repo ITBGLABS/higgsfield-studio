@@ -52,6 +52,7 @@ export async function submitGeneration(plane: GenerationPlane) {
     model: model.id,
     path,
     surface: model.surface,
+    client: process.env.LEDGER_CLIENT?.trim() || null,
     prompt: parsed.prompt.text,
     settings: parsed.settings,
     estimate,
