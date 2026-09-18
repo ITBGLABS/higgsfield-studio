@@ -59,9 +59,14 @@ export async function getGenerationStatuses(data: unknown): Promise<StatusResult
   );
 }
 
+/** Cookie first (Add key modal), then HF_API_KEY from .env.local. Local-only fork:
+    the env fallback exists so the key never has to be typed into the browser. */
 async function readStoredCredentials() {
   const jar = await cookies();
-  return decodeCredentials(jar.get(PLATFORM_KEY_COOKIE)?.value);
+  const fromCookie = decodeCredentials(jar.get(PLATFORM_KEY_COOKIE)?.value);
+  if (fromCookie) return fromCookie;
+  const fromEnv = process.env.HF_API_KEY?.trim();
+  return fromEnv ? decodeCredentials(encodeCredentials(fromEnv)) : null;
 }
 
 async function readCredentials() {

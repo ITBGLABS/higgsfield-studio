@@ -23,7 +23,7 @@ pnpm install --frozen-lockfile
 pnpm dev            # http://localhost:3000
 ```
 
-`.env.local` (gitignored) holds `HF_API_BASE_URL=https://api.higgsfield.ai`. Enter the platform key in the UI's Add key modal as `id:secret`; it lives in an httpOnly cookie, never in a file. Reference and frame uploads need a Vercel Blob token in `OPEN_HIGGSFIELD_READ_WRITE_TOKEN`; text-only generation does not.
+`.env.local` (gitignored) holds `HF_API_BASE_URL=https://api.higgsfield.ai` and `HF_API_KEY=id:secret` (our addition: env fallback when no key cookie is set). The UI Add key modal still works and wins over env. Reference and frame uploads need a Vercel Blob token in `OPEN_HIGGSFIELD_READ_WRITE_TOKEN`; text-only generation does not.
 
 ## Adding a model
 
